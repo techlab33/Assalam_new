@@ -1,0 +1,135 @@
+name: assalam
+description: "A new Flutter project."
+
+
+publish_to: 'none' 
+
+version: 1.0.0+1
+
+
+environment:
+  sdk: '>=3.3.1 <4.0.0'
+
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  
+  cupertino_icons: ^1.0.8
+  curved_navigation_bar: ^1.0.3
+  flutter_native_splash: ^2.4.0
+  flutter_launcher_icons: ^0.13.1
+  prayers_times: ^0.0.6
+  get: ^4.6.6
+  intl: ^0.19.0
+  geolocator: ^11.0.0
+  flutter_compass:
+  permission_handler: ^11.3.1
+  geocoding: ^3.0.0
+  http: ^1.2.1
+  fluttertoast: ^8.2.5
+  shared_preferences: ^2.2.3
+  cached_network_image: ^3.3.1
+  clipboard: ^0.1.3
+  translator: ^1.0.0
+  google_translator: ^1.0.0
+  get_storage: ^2.0.3
+  flutter_local_notifications:
+  awesome_notifications:
+  timezone:
+  audioplayers:
+  vibration: ^1.8.4
+  flutter_flip_card:
+  swipeable_button_view:
+  lecle_yoyo_player: ^0.0.8
+  video_player:
+  curve_clipper: ^0.1.0
+  flutter_gradient_animation_text: ^1.0.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+
+# Flutter launcher icon
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/logos/assalam_green-logo.png"
+
+  flutter_lints: ^3.0.0
+
+
+
+# Flutter native splash screen
+flutter_native_splash:
+  color: "#ffffff"
+  color_dark: "#121212"
+  image: assets/logos/assalam_green-logo.png
+
+
+  android_12:
+    color: "#ffffff"
+    color_dark: "#121212"
+    image: assets/logos/assalam_green-logo.png
+
+
+  web: false
+
+flutter:
+
+
+  uses-material-design: true
+
+  # ----- Local Assets ------
+  assets:
+    - assets/icons/
+    - assets/fonts/
+    - assets/logos/
+    - assets/images/
+    - assets/bismillah.mp3
+    - assets/tasbih_sound.mp3
+
+
+  # ----------- LOCAL FONTS ----------------
+
+  fonts:
+    - family: Roboto
+      fonts:
+        - asset: assets/fonts/roboto/Roboto-Light.ttf
+          weight: 300
+        - asset: assets/fonts/roboto/Roboto-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/roboto/Roboto-Italic.ttf
+          style: italic
+        - asset: assets/fonts/roboto/Roboto-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/roboto/Roboto-Bold.ttf
+          weight: 600
+        - asset: assets/fonts/roboto/Roboto-Black.ttf
+          weight: 700
+  
+
+  
+  
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
