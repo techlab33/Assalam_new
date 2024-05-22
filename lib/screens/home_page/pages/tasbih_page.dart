@@ -138,7 +138,7 @@ class _TasbihPageState extends State<TasbihPage> {
                     margin: EdgeInsets.only(top: 190, left: 120),
                     height: 75,
                     width: 65,
-                    color: Colors.transparent,
+                    color: Colors.red,
                   ),
                 ),
                 Container(
@@ -157,7 +157,7 @@ class _TasbihPageState extends State<TasbihPage> {
                     height: 30,
                     width: 30,
                     margin: EdgeInsets.only(top: 155, left: 195),
-                    color: Colors.transparent,
+                    color: Colors.blue,
                   ),
                 ),
               ],
