@@ -51,6 +51,7 @@ class _MyAppState extends State<MyApp> {
       debugShowCheckedModeBanner: false,
       theme: AppThemes.appThemes,
       home: const RegistrationPage(),
+
     );
 
   }
