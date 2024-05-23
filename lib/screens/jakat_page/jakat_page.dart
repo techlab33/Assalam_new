@@ -62,11 +62,11 @@ class _ZakatCalculatorPageState extends State<ZakatCalculatorPage> {
       controller: controller,
       keyboardType: TextInputType.number,
       decoration: InputDecoration(
-        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(5)),borderSide: BorderSide(color: Color(
-            0xF317B717),width: 2,strokeAlign: BorderSide.strokeAlignOutside)),
-        labelText: labelText,
-        hintText: labelText,
-        labelStyle: TextStyle(fontSize: 12)
+          enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(5)),borderSide: BorderSide(color: Color(
+              0xF317B717),width: 2,strokeAlign: BorderSide.strokeAlignOutside)),
+          labelText: labelText,
+          hintText: labelText,
+          labelStyle: TextStyle(fontSize: 12)
       ),
     );
   }

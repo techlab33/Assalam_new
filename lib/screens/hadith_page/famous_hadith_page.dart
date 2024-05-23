@@ -5,7 +5,7 @@ import 'package:translator/translator.dart';
 
 import '../../data/models/hadith/famous_hadith_data_model.dart';
 import '../../data/services/hadith/get_famous_hadith_data.dart';
-import '../settings_page/language_controller.dart';
+import '../../controller/language_controller.dart';
 
 class FamousHadithPage extends StatefulWidget {
   const FamousHadithPage({Key? key}) : super(key: key);

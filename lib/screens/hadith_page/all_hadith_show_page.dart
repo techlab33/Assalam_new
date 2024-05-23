@@ -3,7 +3,7 @@ import 'package:assalam/data/models/hadith/hadith_book_data_model.dart';
 import 'package:get/get.dart';
 import 'package:translator/translator.dart';
 
-import '../settings_page/language_controller.dart';
+import '../../controller/language_controller.dart';
 
 class AllHadithShowPage extends StatefulWidget {
   final String sectionName;

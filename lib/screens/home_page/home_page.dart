@@ -1,29 +1,31 @@
 
 import 'dart:async';
 import 'dart:convert';
-import 'package:timezone/data/latest.dart' as tz;
-import 'package:timezone/data/latest.dart' as tzData;
-
-import 'package:assalam/screens/dua_pages/dua_page.dart';
+import 'package:assalam/data/models/prayer_time_models/prayer_time_data_model.dart';
+import 'package:assalam/data/models/profile/user_profile_data_model.dart';
+import 'package:assalam/data/services/location_service/location_service.dart';
+import 'package:assalam/data/services/prayer_times/prayer_time_get_data.dart';
+import 'package:assalam/data/services/profile/get_user_profile_data.dart';
 import 'package:assalam/screens/hadith_page/hadith_page.dart';
-import 'package:assalam/screens/home_page/pages/more_page.dart';
-import 'package:assalam/screens/home_page/pages/tasbih_page.dart';
+import 'package:assalam/screens/home_page/username_and_image_page.dart';
 import 'package:assalam/screens/home_page/widgets/gird_view_container_card.dart';
-import 'package:assalam/screens/qiblah_page/qiblah_page.dart';
+import 'package:assalam/screens/live_stream/live_stream.dart';
+import 'package:assalam/screens/prayer_page/next_prayer_countdown.dart';
+import 'package:assalam/screens/prayer_page/prayer_page.dart';
 import 'package:assalam/screens/quran_page/quran_page.dart';
-import 'package:curve_clipper/curve_clipper.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_gradient_animation_text/flutter_gradient_animation_text.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:geocoding/geocoding.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:hijri/hijri_calendar.dart';
+import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:http/http.dart' as http;
-import 'package:swipeable_button_view/swipeable_button_view.dart';
 import 'package:timezone/timezone.dart' as tz;
+import 'package:timezone/data/latest.dart' as tz;
+import 'package:timezone/data/latest.dart' as tzData;
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -32,29 +34,43 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-
 class _HomePageState extends State<HomePage> {
   late final AudioPlayer audioPlayer;
 
   bool _isPlaying = false;
+  late SharedPreferences _prefs;
+  //
+  late DateTime dateTime;
+  late String formattedDate;
 
-  // late SharedPreferences _prefs;
+  String ? currentCity;
+  String ? currentCountry;
+  PrayerTimeDataModel? prayerTimeDataModel;
 
   @override
   void initState() {
     super.initState();
     initializePlayer();
-
-    tz.initializeTimeZones();
-    _getLocation();
-    _checkPermission();
     initNotifications();
     downloadJson();
+    tz.initializeTimeZones();
+    // Location
+    fetchLocation();
+    // Initialize dateTime in the initState method
+    dateTime = DateTime.now();
+    // Format the current date
+    formattedDate = DateFormat('dd MMMM yyyy').format(dateTime);
   }
 
+  // =============> Audio Player Start <==============
   Future<void> initializePlayer() async {
-    audioPlayer = AudioPlayer();
-    await playAudio();
+    _prefs = await SharedPreferences.getInstance();
+    bool? audioPlayed = _prefs.getBool('audioPlayed');
+    if (audioPlayed == null || !audioPlayed) {
+      audioPlayer = AudioPlayer();
+      await playAudio();
+      _prefs.setBool('audioPlayed', true);
+    }
   }
 
   Future<void> playAudio() async {
@@ -66,25 +82,6 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  // Future<void> initializePlayer() async {
-  //   _prefs = await SharedPreferences.getInstance();
-  //   bool? audioPlayed = _prefs.getBool('audioPlayed');
-  //   if (audioPlayed == null || !audioPlayed) {
-  //     audioPlayer = AudioPlayer();
-  //     await playAudio();
-  //     _prefs.setBool('audioPlayed', true);
-  //   }
-  // }
-  //
-  // Future<void> playAudio() async {
-  //   if (!_isPlaying) {
-  //     await audioPlayer.play(AssetSource('bismillah.mp3'));
-  //     setState(() {
-  //       _isPlaying = true;
-  //     });
-  //   }
-  // }
-
   @override
   void dispose() {
     audioPlayer.dispose();
@@ -92,7 +89,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   bool isFinished=false;
-  //===============audio end=======//
+
+  //=============== Audio End =======//
 
   //============notification start==========//
 
@@ -125,6 +123,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   void scheduleNotification() {
+
     final scheduledTime1 = Time(4, 10, 0);//fajr
     final scheduledTime2 = Time(12, 00, 0);//dhuhr
     final scheduledTime3 = Time(15, 16, 0);//asr
@@ -180,7 +179,7 @@ class _HomePageState extends State<HomePage> {
           notificationBody, // Body
           tz.TZDateTime.from(scheduledDate1, tz.local), // Scheduled time
           platform,
-          androidAllowWhileIdle: true, // Allow notification even when the app is closed
+          androidAllowWhileIdle: false, // Allow notification even when the app is closed
           uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
         );
       } else {
@@ -200,286 +199,244 @@ class _HomePageState extends State<HomePage> {
 
 
 //====================notification end ==================//
-  //====================get location start ==================//
 
-  PermissionStatus _permissionStatus = PermissionStatus.denied;
-  String _country = '';
 
-  // Get the current location
-  _getLocation() async {
-    try {
-      Position position = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.best);
-      List<Placemark> placemarks =
-      await placemarkFromCoordinates(position.latitude, position.longitude);
-      setState(() {
-        _country = placemarks.first.administrativeArea ?? 'Unknown';
-      });
-    } catch (e) {
-      print('Error: $e');
-    }
-  }
+  // =============> Prayer Time Data Start <==============
+  final prayerTimeGetData = PrayerTimeGetData();
+  // =============> Prayer Time Data End <==============
 
-  // Check location permission
-  _checkPermission() async {
-    PermissionStatus status = await Permission.location.request();
+  // =============> Get User Current Location Start <==============
+  Future<void> fetchLocation() async {
+    await LocationService().requestPermissionAndFetchLocation();
     setState(() {
-      _permissionStatus = status;
+      currentCity = LocationService().currentCity;
+      currentCountry = LocationService().currentCountry;
     });
-    if (status == PermissionStatus.granted) {
-      _getLocation();
+
+    if (currentCity != null && currentCountry != null) {
+      prayerTimeDataModel = await prayerTimeGetData.fetchPrayerTimeData(currentCity!, currentCountry!);
+      setState(() {});
     }
   }
-  //====================get location end ==================//
+  // =============> Get User Current Location End <==============
+
+  // --------> User Profile Data <--------
+  var fetchProfileData = UserProfileGetData();
+  // --------> User Profile Data Get <--------
+
+
 
   @override
   Widget build(BuildContext context) {
+    // Hijri date
+    HijriCalendar _today = HijriCalendar.now();
+    String hijriDate = _today.toFormat("dd MMMM yyyy");
+    // Screen Size
     var screenSize = MediaQuery.of(context).size;
+
+    UserProfileDataModel userProfileDataModel;
 
     DateTime now = DateTime.now();
     String formattedDate = "${now.day}-${now.month}-${now.year}";
     String formattedTime = "${now.hour}:${now.minute}";
 
     return Scaffold(
-      appBar: AppBar(
-       leading: Padding(
-         padding: const EdgeInsets.all(8.0),
-         child: CircleAvatar(backgroundImage: NetworkImage("https://mybeautybrides.net/images/30-1594628321285.jpg"),),
-       ),
-        title: Text("Hannah Delisha",style: TextStyle(color: Colors.white),),
-        backgroundColor: Color(0xF3044204),
-      ),
-      backgroundColor: CupertinoColors.activeGreen.withOpacity(0.9),
       body: SafeArea(
-
         child: SingleChildScrollView(
+
+          // -------------> New Design Start <-------------
+
           child: Container(
-            margin: const EdgeInsets.symmetric(horizontal: 20),
-            child: Column(
-              children: [
-                //=================================================//
-                Stack(
-                  children: [
-
-                    Card(
-                      child: Center(
-                        child: Container(
-                          margin: EdgeInsets.only(top: 60),
-                          height: 200,
-                          width: MediaQuery.of(context).size.width/1,
-                          color: Color(0xF3044204),
-                          child: Column(
-                            children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Container(
-                                    height: 160,
-                                    width: MediaQuery.of(context).size.width/2,
-                                    color: Color(0xF3044204),
-                                    child: Column(
-                                      children: [
-                                        Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: Text("Prayer Time",style: TextStyle(color: Colors.white),),
-                                        ),
-                                        Text("13:00",style: TextStyle(color: Colors.white),),
-                                        Text("Asr",style: TextStyle(color: Colors.white),),
-                      // rainbow text
-                                      SizedBox(height: 20,),
-                                        Card(
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child: GradientAnimationText(
-                                              text: Text(
-                                                " Get Premium",
-                                                style: TextStyle(
-                                                  fontSize: 18,
-                                                  fontWeight: FontWeight.bold
-                                                ),
-                                              ),
-                                              colors: [
-                                                Color(0xff8f00ff),  // violet
-                                                Colors.indigo,
-                                                Colors.blue,
-                                                Colors.green,
-                                                Colors.yellow,
-                                                Colors.orange,
-                                                Colors.red,
-                                              ],
-                                              duration: Duration(seconds: 5),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  Container(
-                                    height: 160,
-                                    width: MediaQuery.of(context).size.width/3.5,
-                                    child: Image.asset('assets/images/bg_mosque.png'),
-                                  ),
-                                ],
-                              ),
-                              Container(
-                                height: 35,
-                                width: MediaQuery.of(context).size.width,
-                                color: Colors.white,
-                                child: Row(
-                                  children: [
-                                    Container(
-                                      height: 35,
-                                      margin: EdgeInsets.only(left: 10,top: 4),
-                                      width: MediaQuery.of(context).size.width/1.5,
-                                      child:Text('Current Location: $_country',) ,
-                                    )
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-
-                        ),
-                      ),
-                    ),
-
-                    Center(
-                      child: CustomClipperWidget(
-                        mode: ClipperMode.concave,
-                        curvePoint: 7,
-                        child: Container(
-                          height: 90,
-                          // width: 345,
-                          width: MediaQuery.of(context).size.width/1.1398,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-
-                              Padding(
-                                padding: const EdgeInsets.only(bottom: 60,left: 10),
-                                child: Row(
-                                  children: [
-                                    Icon(Icons.alarm,color: Colors.white60,),
-                                  Text(formattedTime,style: TextStyle(color: Colors.white),)
-                                  ],
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.only(bottom: 60,right: 10),
-                                child: Row(
-                                  children: [
-                                    Icon(Icons.date_range,color: Colors.white60,),
-                                    Text(formattedDate,style: TextStyle(color: Colors.white),)
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                          decoration: const  BoxDecoration(
-                            color: Color(0xF3044204)
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    //=============================new end============//
-
-                  ],
-                ),
-                const SizedBox(height: 30),
-                // Grid view
-                SizedBox(
-                  child: GridView.count(
-                    crossAxisCount: 3,
-                    crossAxisSpacing: screenSize.width / 45,
-                    mainAxisSpacing: screenSize.height / 98.5,
-                    shrinkWrap: true,
-                    childAspectRatio: 1,
-                    physics: const NeverScrollableScrollPhysics(),
+            height: screenSize.height,
+            width: screenSize.width,
+            decoration: BoxDecoration(
+              color: Color.fromRGBO(239, 229, 223, 1),
+              image: DecorationImage(
+                image: AssetImage('assets/images/flower-pattern-bg.png'),
+                fit: BoxFit.cover,
+              ),
+            ),
+             child:  Stack(
+                children: [
+                  // ------>  Left & Right corner image  <---------
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      GridViewContainerCard(
-                        image: 'assets/icons/tasbih.png',
-                        text: 'Tasbih',
-                        onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => const TasbihPage())),
-                      ),
-                      GridViewContainerCard(
-                        image: 'assets/icons/hadith.png',
-                        text: 'Hadith',
-                        onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => const HadithPage())),
-                      ),
-                      GridViewContainerCard(
-                        image: 'assets/icons/pray.png',
-                        text: 'Dua',
-                        onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => const DuaPage())),
-                      ),
-                      GridViewContainerCard(
-                        image: 'assets/icons/quran_colorful.png',
-                        text: 'Al-Quran',
-                        onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => const QuranPage())),
-                      ),
-                      GridViewContainerCard(
-                        image: 'assets/icons/kaaba.png',
-                        text: 'Qiblah',
-                        onPressed: () => Get.to(QiblaPage(), duration: Duration(milliseconds: 600)),
-                      ),
-                      GridViewContainerCard(
-                        image: 'assets/icons/more.png',
-                        text: 'More',
-                        onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => const MorePage())),
-                      ),
+                      Image.asset('assets/images/left_corner.png',),
+                      Image.asset('assets/images/right_corner.png',),
                     ],
                   ),
-                ),
 
-                //======start chatbot===================//
-                const SizedBox(height: 20,),
+                  // ------>  Design  <---------
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      //
+                      Center(
+                        child: Container(
+                          margin: EdgeInsets.only(top: 15),
+                           height:  screenSize.height / 1.06,
+                          width: screenSize.width / 1.16,
+                          decoration: BoxDecoration(
+                            image: DecorationImage(
+                              image: AssetImage('assets/images/dome-design.png'),
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                          child: Column(
+                            children: [
+                              // ------>  Assalam Logo  <---------
+                              Container(
+                                margin: EdgeInsets.only(top: 80),
+                                child: Image.asset('assets/logos/logo_assalam_hijau.png', height: 75, width: 100),
+                              ),
 
-                SwipeableButtonView(
-                  buttonText: 'Ask anything Assalam Chatbot',
-                  buttonWidget: Container(
-                    child: Icon(Icons.arrow_forward_ios_rounded,
-                      color: Colors.grey,
-                    ),),
-                  activeColor: Color(0xFF009C41),
-                  isFinished: isFinished,
-                  onWaitingProcess: () {
-                    Future.delayed(Duration(seconds: 2), () {
-                      setState(() {
+                              // ------>  Assalamualaikum Text User Name Text & User Image  <-------
+                              UsernameAndImagePage(),
 
-                        showDialog(
-                          context: context,
-                          builder: (context) => new AlertDialog(
-                            title: new Text('Attention !!!'),
-                            content: Text(
-                                'This Feature will Coming Soon...'),
-                            actions: <Widget>[
-                              ElevatedButton(onPressed: () {
-                                setState(() {
-                                  isFinished = true;
-                                  Navigator.pop(context);
-                                });
-                              }, child: Text("okay")),
+                              SizedBox(height: 6),
+
+                              // ------> Subscription Banner Image  <-------
+                              Padding(
+                                padding: const EdgeInsets.only(right: 5),
+                                child: Container(
+                                  height: 70,
+                                  width: 270,
+                                  decoration: BoxDecoration(
+                                  image: DecorationImage(
+                                    image: AssetImage('assets/images/get-more-features-banner-img.png'),
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                                ),
+                              ),
+                              SizedBox(height: 8),
+
+                              // ------> Location & Prayer time & date  <-------
+                              Padding(
+                                padding: const EdgeInsets.only(right: 5),
+                                child: Container(
+                                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                  height: 92,
+                                  width: 270,
+                                  color: Color.fromRGBO(5, 145, 5, 1),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                     crossAxisAlignment: CrossAxisAlignment.center,
+                                    children: [
+                                      // ------> Date time & Location  <-------
+                                      Column(
+                                        mainAxisAlignment: MainAxisAlignment.start,
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(formattedDate, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: Colors.white)),
+                                          SizedBox(height: 3),
+                                          Text(hijriDate, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Colors.white)),
+                                          SizedBox(height: 5),
+
+                                          Row(
+                                            children: [
+                                              Icon(Icons.location_on_outlined, size: 20, color: Colors.white),
+                                              SizedBox(width: 5),
+                                              Text(
+                                                '$currentCity, \n$currentCountry',
+                                                style: TextStyle(fontWeight: FontWeight.w500, color: Colors.white, fontSize: 12),
+                                                maxLines: 2,
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+
+                                      // Divider Container
+                                      Container(
+                                        height: 70,
+                                        width: 1,
+                                        color: Colors.white,
+                                      ),
+
+                                      // ------> Next Prayer And Time  <-------
+
+                                      currentCity != null && currentCountry != null && prayerTimeDataModel != null
+                                          ? Column(
+                                        mainAxisAlignment: MainAxisAlignment.start,
+                                        crossAxisAlignment: CrossAxisAlignment.end,
+                                        children: [
+                                          Text('Next Prayer', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: Colors.white)),
+                                          SizedBox(height: 4),
+                                          NextPrayerCountdown(prayerTimeDataModel: prayerTimeDataModel!),
+                                        ],
+                                      ) : Center(child: CircularProgressIndicator()),
+                                    ],
+                                  ),
+                                ),
+                              ),
+
                             ],
                           ),
-                        );
+                        ),
+                      ),
+                      //  Home Page Items
+                    ],
+                  ),
 
-                        // isFinished = true;
-
-                      });
-                    });
-                  },
-                  onFinish: () async {
-
-                    setState(() {
-                      isFinished = false;
-                    });
-                  },
-                ),
-                const SizedBox(height: 20),
-                //========end chatbot===========//
-              ],
-            ),
+                  // ---------> Home Page Items <----------
+                  Container(
+                    margin: EdgeInsets.only(top: 410),
+                    padding: EdgeInsets.symmetric(horizontal: 25),
+                    child: Column(
+                      children: [
+                        SizedBox(
+                          child: GridView.count(
+                            crossAxisCount: 3,
+                            crossAxisSpacing: screenSize.width / 45,
+                            mainAxisSpacing: screenSize.height / 98.5,
+                            shrinkWrap: true,
+                            childAspectRatio: 1,
+                            physics: const NeverScrollableScrollPhysics(),
+                            children: [
+                              GridViewContainerCard(
+                                image: 'assets/images/prayer-time-icon.png',
+                                text: 'Prayer Times',
+                                onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => PrayerPage())),
+                              ),
+                              GridViewContainerCard(
+                                image: 'assets/images/quran-icon.png',
+                                text: 'Quran',
+                                onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => const QuranPage())),
+                              ),
+                              GridViewContainerCard(
+                                image: 'assets/images/hadith-book-icon.png',
+                                text: 'Hadith',
+                                onPressed: () {
+                                  Get.to(HadithPage(), duration: Duration(milliseconds: 600));
+                                },
+                              ),
+                              GridViewContainerCard(
+                                image: 'assets/images/live-mecca-icon.png',
+                                text: 'Live Mecca',
+                                // onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => const QuranPage())),
+                              ),
+                              GridViewContainerCard(
+                                image: 'assets/images/live-medina-icon.png',
+                                text: 'Live Medina',
+                                // onPressed: () => Get.to(QiblaPage(), duration: Duration(milliseconds: 600)),
+                              ),
+                              GridViewContainerCard(
+                                image: 'assets/images/live-assalam-icon.png',
+                                text: 'Live Assalam',
+                                onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) =>  LiveStreamPage(title: '',))),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
           ),
+          // -------------> New Design End <-------------
         ),
       ),
     );

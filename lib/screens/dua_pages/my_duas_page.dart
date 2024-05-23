@@ -22,13 +22,14 @@ class MyDuasPage extends StatelessWidget {
                 trailing: Icon(Icons.arrow_forward_ios, size: 20),
                 onTap: () => Get.to(DuaFavoritePage()),
               ),
-              Divider(),
+              Divider(color: Colors.green),
               ListTile(
                 title: Text('Checkout', style: TextStyle(fontWeight: FontWeight.w500, fontSize: 18)),
                 leading: Icon(Icons.check_box_outlined, color: Colors.green,),
                 trailing: Icon(Icons.arrow_forward_ios, size: 20,),
                 onTap: () => Get.to(DuaCheckPage()),
-              ),Divider(),
+              ),
+              Divider(color: Colors.green),
               ListTile(
                 title: Text('Notes', style: TextStyle(fontWeight: FontWeight.w500, fontSize: 18)),
                 leading: Icon(Icons.edit, color: Colors.green,),
@@ -37,7 +38,7 @@ class MyDuasPage extends StatelessWidget {
                   //Navigator.of(context).pushNamed('/myduas');
                 },
               ),
-              Divider(),
+              Divider(color: Colors.green),
             ],
           ),
         ),

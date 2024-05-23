@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:translator/translator.dart';
 
-import '../../settings_page/language_controller.dart';
+import '../../../controller/language_controller.dart';
 class DuaListCard extends StatefulWidget {
   DuaListCard({
     super.key,

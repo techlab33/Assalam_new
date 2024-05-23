@@ -43,8 +43,8 @@ class _LiveStreamPageState extends State<LiveStreamPage> {
     return Scaffold(
       body: _videoPlayerController.value.isInitialized
           ? SafeArea(
-            child: SizedBox.expand(
-                    child: FittedBox(
+        child: SizedBox.expand(
+          child: FittedBox(
             fit: BoxFit.cover,
             child: SizedBox(
               width: _videoPlayerController.value.size.width,
@@ -53,9 +53,9 @@ class _LiveStreamPageState extends State<LiveStreamPage> {
                 controller: _chewieController,
               ),
             ),
-                    ),
-                  ),
-          )
+          ),
+        ),
+      )
           : Center(
         child: CircularProgressIndicator(),
       ),

@@ -1,11 +1,14 @@
+
+
 import 'package:assalam/controller/auth_controller/login_controller.dart';
 import 'package:assalam/screens/authentication/registration_page/registration_page.dart';
 import 'package:assalam/screens/bottom_nav_bar_page/bottom_nav_bar.dart';
-import 'package:assalam/screens/settings_page/language_controller.dart';
+
+import 'package:assalam/controller/language_controller.dart';
 import 'package:assalam/utils/theme/themes.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:intl/date_symbol_data_file.dart';
+
 
 
 void main() {
@@ -35,9 +38,7 @@ class _MyAppState extends State<MyApp> {
       }else  {
         Get.offAll(const RegistrationPage()),
       }
-
     });
-
     //
     final languageController = Get.put(LanguageController());
 
@@ -51,7 +52,6 @@ class _MyAppState extends State<MyApp> {
       debugShowCheckedModeBanner: false,
       theme: AppThemes.appThemes,
       home: const RegistrationPage(),
-
     );
 
   }

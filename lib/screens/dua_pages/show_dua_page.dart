@@ -1,6 +1,6 @@
 import 'package:assalam/data/models/dua_model/dua_data_model.dart';
 import 'package:assalam/data/services/dua/dua_fev_check_note_data.dart';
-import 'package:assalam/screens/settings_page/language_controller.dart';
+import 'package:assalam/controller/language_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:translator/translator.dart';

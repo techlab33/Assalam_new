@@ -1,8 +1,14 @@
 
+import 'package:assalam/screens/authentication/log_in_page/login_page.dart';
+import 'package:assalam/screens/profile_page/edit_profile.dart';
+import 'package:assalam/screens/profile_page/profile_page.dart';
 import 'package:assalam/screens/settings_page/language_selector.dart';
 import 'package:assalam/screens/settings_page/widgets/custom_list_view_card.dart';
+import 'package:assalam/utils/constants/app_constants.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
@@ -22,10 +28,14 @@ class SettingsPage extends StatelessWidget {
 
             // Profile
             CustomListViewCard(
-              text: 'Profile',
+              text: 'User Profile',
               image: 'assets/icons/user.png',
               icon: Icons.arrow_forward_ios,
-              onPressed: () {},
+              onPressed: () async {
+                final SharedPreferences prefs = await SharedPreferences.getInstance();
+                final bool? isProfileComplete = prefs.getBool(AppConstraints.isProfileComplete);
+                Get.to( isProfileComplete == true ? ProfilePage() : EditProfilePage());
+              },
             ),
             // Premium
             CustomListViewCard(
@@ -62,13 +72,69 @@ class SettingsPage extends StatelessWidget {
               text: 'Logout',
               image: 'assets/icons/logout.png',
               icon: Icons.arrow_forward_ios,
-              onPressed: () {},
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(
+                      title:const Text(
+                        //'Do you want to call?'
+                        'Do you want to Logout?',
+                        style:  TextStyle(
+                          fontFamily: 'Open_Sans',
+                          fontSize: 20,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      actions: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(),
+                              child: const Text(
+                                'Cancel',
+                                style: TextStyle(
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                            TextButton(
+                              onPressed: () async {
+                                logout();
+                              },
+                              child: const Text(
+                                'Yes',
+                                style: TextStyle(
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ],
+                        )
+                      ],
+                    );
+                  },
+                );
+              },
             ),
 
           ],
         ),
       )),
     );
+  }
+
+  // Logout
+  void logout() async {
+    final SharedPreferences sharedPref = await SharedPreferences.getInstance();
+    // Clear user all data
+    sharedPref.clear();
+
+    // Navigate back to the login screen
+    Get.offAll( const LoginScreen());
   }
 }
 

@@ -1,82 +1,3 @@
-// import 'package:assalam/data/models/quran_model/quran_data_model.dart';
-// import 'package:assalam/data/services/quran/quran_all_data.dart';
-// import 'package:flutter/material.dart';
-//
-// class QuranPage extends StatefulWidget {
-//   const QuranPage({super.key});
-//
-//   @override
-//   State<QuranPage> createState() => _QuranPageState();
-// }
-//
-// class _QuranPageState extends State<QuranPage> {
-//
-//   //
-//   final fetchAllQuran = GetAllQuran();
-//
-//   @override
-//   void initState() {
-//     fetchAllQuran.fetchAllQuranData();
-//     super.initState();
-//   }
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     //
-//     QuranDataModel quranDataModel;
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: const Text('Al-Quran', style: TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.w500),),
-//         backgroundColor: Colors.green,
-//       ),
-//       body: SafeArea(
-//         child: SingleChildScrollView(
-//           child: Column(
-//             children: [
-//
-//               FutureBuilder<QuranDataModel>(
-//                 future: fetchAllQuran.fetchAllQuranData(),
-//                 builder: (context, snapshot) {
-//                   if (snapshot.connectionState == ConnectionState.waiting) {
-//                     return Center(child: const CircularProgressIndicator()); // Show a loading indicator while fetching data
-//                   } else if (snapshot.hasError) {
-//                     print(snapshot.error);
-//                     return Text('Error: ${snapshot.error}');
-//                   } else {
-//                     quranDataModel = snapshot.data!;
-//
-//                     return Column(
-//
-//                       children: [
-//                         SizedBox(height: 10),
-//                         for (final quran in quranDataModel.data!.surahs)
-//                           Padding(
-//                             padding: const EdgeInsets.symmetric(horizontal: 10),
-//                             child: Card(
-//                               child: ListTile(
-//
-//                                 leading: CircleAvatar(
-//                                   radius: 13,
-//                                   backgroundColor: Colors.green.shade300,
-//                                   child: Text(quran.number.toString(), style: TextStyle(color: Colors.white),),
-//                                 ),
-//                                 title: Text(quran.englishName, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),),
-//                               ),
-//                             ),
-//                           ),
-//                       ],
-//                     );
-//                   }
-//                 },
-//               ),
-//
-//             ],
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }
 
 import 'dart:developer';
 import 'package:assalam/screens/quran_page/show_quran_page.dart';
@@ -134,9 +55,11 @@ class _QuranPageState extends State<QuranPage> {
                   return Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 10,),
                     child: Card(
+                      elevation: 3,
+                      shadowColor: Colors.green,
                       child: ListTile(
                         onTap: () => Get.to(ShowQuranPage(
-                                  suraID: quran.number.toString(),
+                                  suraId: quran.number.toString(),
                                   suraName: quran.englishName,
                                   quranDataModel: quranDataModel!,
                                 )),

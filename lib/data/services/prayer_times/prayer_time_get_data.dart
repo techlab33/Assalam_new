@@ -6,8 +6,6 @@ import 'package:http/http.dart' as http;
 class PrayerTimeGetData {
   Map<String, dynamic> prayerTimeData = {};
 
-
-
   Future<PrayerTimeDataModel> fetchPrayerTimeData(String city, String country) async {
 
     try {

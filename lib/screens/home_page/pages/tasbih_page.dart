@@ -1,3 +1,4 @@
+import 'package:assalam/utils/constants/colors.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -20,9 +21,7 @@ class _TasbihPageState extends State<TasbihPage> {
   void _incrementCounter() {
     setState(() {
       _counter++;
-      // if (_selectedOption == 1 && _counter == 3) {
-      //   Vibration.vibrate(duration: 1000);
-      // }
+
     });
   }
 
@@ -61,9 +60,8 @@ class _TasbihPageState extends State<TasbihPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Tasbih"),
-        centerTitle: true,
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: Text("Tasbih",style: TextStyle(color: Colors.white,fontWeight: FontWeight.w500, fontSize: 20)),
+        backgroundColor: TColors.primaryColor,
       ),
       body: SingleChildScrollView(
         scrollDirection: Axis.vertical,
@@ -138,7 +136,7 @@ class _TasbihPageState extends State<TasbihPage> {
                     margin: EdgeInsets.only(top: 190, left: 120),
                     height: 75,
                     width: 65,
-                    color: Colors.red,
+                    color: Colors.transparent,
                   ),
                 ),
                 Container(
@@ -157,7 +155,7 @@ class _TasbihPageState extends State<TasbihPage> {
                     height: 30,
                     width: 30,
                     margin: EdgeInsets.only(top: 155, left: 195),
-                    color: Colors.blue,
+                    color: Colors.transparent,
                   ),
                 ),
               ],

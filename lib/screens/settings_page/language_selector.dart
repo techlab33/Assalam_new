@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import 'language_controller.dart';
+import '../../controller/language_controller.dart';
 
 class LanguageSelectorPage extends StatelessWidget {
 
@@ -12,7 +12,7 @@ class LanguageSelectorPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Settings', style: TextStyle(color: Colors.white)),
+        title: Text('Select Language', style: TextStyle(color: Colors.white)),
         backgroundColor: Colors.green,
       ),
       body: Padding(
@@ -22,6 +22,10 @@ class LanguageSelectorPage extends StatelessWidget {
             buildLanguageCard(context, 'English', 'en'),
             buildLanguageCard(context, 'Arabic', 'ar'),
             buildLanguageCard(context, 'Bengali', 'bn'),
+            buildLanguageCard(context, 'Malaysia', 'my'),
+            buildLanguageCard(context, 'Thailand', 'th'),
+            buildLanguageCard(context, 'Indonesia', 'id'),
+            buildLanguageCard(context, 'Philippines', 'tl'),
             // Add more language options as needed
           ],
         ),

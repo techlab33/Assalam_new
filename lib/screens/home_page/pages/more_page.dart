@@ -1,11 +1,13 @@
 import 'package:assalam/screens/dua_pages/dua_page.dart';
 import 'package:assalam/screens/hadith_page/hadith_page.dart';
+import 'package:assalam/screens/home_page/pages/qiblah_page.dart';
 import 'package:assalam/screens/home_page/pages/tasbih_page.dart';
 import 'package:assalam/screens/home_page/widgets/gird_view_container_card.dart';
 import 'package:assalam/screens/jakat_page/jakat_page.dart';
 import 'package:assalam/screens/live_stream/live_stream.dart';
 import 'package:assalam/screens/qiblah_page/qiblah_page.dart';
 import 'package:assalam/screens/quran_page/quran_page.dart';
+import 'package:assalam/utils/constants/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -19,7 +21,8 @@ class MorePage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-
+        title: Text('Assalam All Items', style: TextStyle(color: Colors.white,fontWeight: FontWeight.w500, fontSize: 20)),
+        backgroundColor: TColors.primaryColor,
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -28,13 +31,7 @@ class MorePage extends StatelessWidget {
             child: Column(
               children: [
 
-                Container(
-                  height: 100,
-                  width: MediaQuery.of(context).size.width/1,
-                  child: Image.asset("assets/logos/assalam_green-logo.png",fit: BoxFit.cover,),
-                ),
-
-                const SizedBox(height: 40),
+                const SizedBox(height: 10),
                 // Grid view
                 SizedBox(
                   child: GridView.count(
@@ -48,33 +45,42 @@ class MorePage extends StatelessWidget {
                       GridViewContainerCard(
                         image: 'assets/icons/tasbih.png',
                         text: 'Tasbih',
-                        onPressed: () => Get.to(TasbihPage(), duration: Duration(milliseconds: 600)),
+                        onPressed: () => Get.to(TasbihPage()),
                       ),
                       GridViewContainerCard(
-                        image: 'assets/icons/hadith.png',
+                        image: 'assets/images/quran-icon.png',
+                        text: 'Al-Quran',
+                        onPressed: () => Get.to(QuranPage()),
+                      ),
+                      GridViewContainerCard(
+                        image: 'assets/images/hadith-book-icon.png',
                         text: 'Hadith',
-                        onPressed: () => Get.to(HadithPage(), duration: Duration(milliseconds: 600)),
+                        onPressed: () => Get.to(HadithPage()),
                       ),
                       GridViewContainerCard(
                         image: 'assets/icons/pray.png',
                         text: 'Dua',
-                        onPressed: () => Get.to(DuaPage(), duration: Duration(milliseconds: 600)),
+                        onPressed: () => Get.to(DuaPage()),
                       ),
-                      GridViewContainerCard(
-                        image: 'assets/icons/quran_colorful.png',
-                        text: 'Al-Quran',
-                        onPressed: () => Get.to(QuranPage(), duration: Duration(milliseconds: 600)),
-                      ),
-
                       GridViewContainerCard(
                         image: 'assets/icons/calculator.png',
-                        text: 'Jakat',
+                        text: 'Zakat',
                         onPressed: () => Get.to(ZakatCalculatorPage(), duration: Duration(milliseconds: 600)),
                       ),
                       GridViewContainerCard(
                         image: 'assets/icons/kaaba.png',
                         text: 'Qiblah',
                         onPressed: () => Get.to(QiblaPage(), duration: Duration(milliseconds: 600)),
+                      ),
+                      GridViewContainerCard(
+                        image: 'assets/images/live-mecca-icon.png',
+                        text: 'Live Mecca',
+                        // onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => const QuranPage())),
+                      ),
+                      GridViewContainerCard(
+                        image: 'assets/images/live-medina-icon.png',
+                        text: 'Live Medina',
+                        // onPressed: () => Get.to(QiblaPage(), duration: Duration(milliseconds: 600)),
                       ),
                       GridViewContainerCard(
                         image: 'assets/icons/live_stream.png',

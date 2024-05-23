@@ -1,4 +1,4 @@
-import 'package:assalam/screens/settings_page/language_controller.dart';
+import 'package:assalam/controller/language_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:translator/translator.dart';
@@ -9,12 +9,14 @@ class DuaContainerCard extends StatefulWidget {
     required this.title,
     required this.subtitle,
     required this.color,
+    required this.image,
     this.onPressed,
   });
 
   String title;
   String subtitle;
   Color color;
+  String image;
   void Function()? onPressed;
 
   @override
@@ -54,14 +56,15 @@ class _DuaContainerCardState extends State<DuaContainerCard> {
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
+            Image.network(widget.image, height: 40, width: 40),
             FutureBuilder<Translation>(
               future: translator.translate(widget.title, from: 'auto', to: targetLanguage),
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
                   final translatedText = snapshot.data!.text;
-                  return Text(translatedText, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500));
+                  return Text(translatedText, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Colors.white));
                 } else if (snapshot.hasError) {
                   return Text('Error: ${snapshot.error}');
                 } else {
@@ -74,7 +77,7 @@ class _DuaContainerCardState extends State<DuaContainerCard> {
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
                   final translatedText = snapshot.data!.text;
-                  return Text(translatedText, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: Colors.black54));
+                  return Text(translatedText, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: Colors.white70));
                 } else if (snapshot.hasError) {
                   return Text('Error: ${snapshot.error}');
                 } else {
@@ -82,8 +85,6 @@ class _DuaContainerCardState extends State<DuaContainerCard> {
                 }
               },
             ),
-            // Text(title, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
-            // Text('${widget.subtitle} Chapters', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: Colors.black54)),
           ],
         ),
       ),

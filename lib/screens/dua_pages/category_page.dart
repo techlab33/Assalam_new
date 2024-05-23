@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:translator/translator.dart';
 
-import '../settings_page/language_controller.dart';
+import '../../controller/language_controller.dart';
 
 
 class DuaCategoryPage extends StatefulWidget {
@@ -52,22 +52,21 @@ class _DuaCategoryPageState extends State<DuaCategoryPage> {
                     return Text('Error: ${snapshot.error}');
                   } else {
                     duaDataModel = snapshot.data!;
-
                     return SizedBox(
                       child: GridView.count(
                         crossAxisCount: 2,
                         crossAxisSpacing: screenSize.width / 45,
                         mainAxisSpacing: screenSize.height / 98.5,
                         shrinkWrap: true,
-                        childAspectRatio: 1.4,
+                        childAspectRatio: 1.15,
                         physics: const NeverScrollableScrollPhysics(),
                         children: [
-
                           for (final categoryName in duaDataModel.allCategories!)
                           DuaContainerCard(
+                            image: categoryName.image,
                             title: categoryName.categoryName,
                             subtitle: categoryName.totalSubCategories.toString(),
-                            color: Colors.blue.shade200,
+                            color: Colors.green.shade400,
                             onPressed: () => Get.to(MorningAndEveningPage(categoryName: categoryName.categoryName,duaDataModel: duaDataModel, categoryID: categoryName.id.toString(),)),
                           ),
                         ],

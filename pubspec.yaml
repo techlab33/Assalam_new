@@ -41,14 +41,14 @@ dependencies:
   audioplayers:
   vibration: ^1.8.4
   flutter_flip_card:
-  swipeable_button_view:
   lecle_yoyo_player: ^0.0.8
   video_player:
-  curve_clipper: ^0.1.0
-  flutter_gradient_animation_text: ^1.0.2
   chewie: ^1.1.0
-  share_plus: ^9.0.0
-  workmanager:
+  hijri:
+  image_picker:
+  just_audio:
+
+
 
 
 dev_dependencies:

@@ -1,3 +1,4 @@
+import 'package:assalam/utils/constants/colors.dart';
 import 'package:flutter/material.dart';
 
 
@@ -18,18 +19,18 @@ class GridViewContainerCard extends StatelessWidget {
     return InkWell(
       onTap: onPressed,
       child: Container(
-        padding: const EdgeInsets.all(10),
+        padding: const EdgeInsets.all(5),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(15),
-          color: Color(0xF3044204),
+          borderRadius: BorderRadius.circular(10),
+          color: TColors.primaryColor,
         ),
         child: Column(
           children: [
             const SizedBox(height: 5),
             // Image
-            Image.asset(image, height: 36, width: 36),
+            Image.asset(image, height: 45, width: 45),
             const SizedBox(height: 10),
-            Text(text, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.white)),
+            Text(text, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: Colors.white)),
           ],
         ),
       ),
